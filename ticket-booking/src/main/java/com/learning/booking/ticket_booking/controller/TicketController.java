@@ -25,20 +25,23 @@ public class TicketController {
     @Autowired
     RestTemplate restTemplate;
 
-//    @Value("${payment.url}")
-//    String paymentUrl;
 
+    @Value("${payment.url}")
+    String paymentUrl;
+
+    @Value("${booking.status}")
+    String bookingStatus;
     @PostMapping
-    public Ticket bookTicket(@RequestBody Ticket ticket)  {
+    public String bookTicket(@RequestBody Ticket ticket)  {
 
         Ticket payload=null;
-        System.out.println(ticket.toString());
-        final String baseUrl="http://localhost:8082/pay";
+        System.out.println("payment url: "+paymentUrl);
+//        final String baseUrl="http://localhost:8082/pay";
 
         URI url;
 
         try{
-            url=new URI(baseUrl);
+            url=new URI(paymentUrl);
 
             HttpHeaders headers=new HttpHeaders();
             headers.set("sample","true");
@@ -62,6 +65,6 @@ public class TicketController {
         }
 
 
-        return payload;
+        return bookingStatus;
     }
 }
