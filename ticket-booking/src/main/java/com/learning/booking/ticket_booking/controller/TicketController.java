@@ -1,9 +1,11 @@
 package com.learning.booking.ticket_booking.controller;
 
 import com.learning.booking.ticket_booking.entity.Ticket;
+import com.learning.booking.ticket_booking.feignProxy.PaymentProxyClient;
 import com.learning.booking.ticket_booking.repository.TicketReposiotry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @RestController
+@RefreshScope
 public class TicketController {
 
     @Autowired
@@ -37,9 +40,11 @@ public class TicketController {
     @Value("${booking.status.failure}")
     String bookingStatusFailure;
 
+    @Autowired
+    PaymentProxyClient paymentProxyClient;
 
 
-    @PostMapping
+    @PostMapping("book-ticket-restTemplate")
     public String bookTicket(@RequestBody Ticket ticket)  {
 
         Ticket payload=null;
@@ -78,5 +83,22 @@ if(payload.getStatus().equals("Booked")){
 }
 
 return bookingStatusFailure;
+    }
+
+
+
+    @PostMapping("book-ticket-Feign")
+    public String bookTicketFeign(@RequestBody Ticket ticket)  {
+
+        Ticket payload=null;
+        System.out.println("payment url: "+paymentUrl);
+
+        payload= paymentProxyClient.doPayment(ticket);
+        ticketReposiotry.save(payload);
+
+        if(payload.getStatus().equals("Booked"))
+            return bookingStatusSuccess +" using feign ";
+
+        return bookingStatusFailure+" using feign ";
     }
 }
