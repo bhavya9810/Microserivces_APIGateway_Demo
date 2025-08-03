@@ -29,8 +29,16 @@ public class TicketController {
     @Value("${payment.url}")
     String paymentUrl;
 
-    @Value("${booking.status}")
-    String bookingStatus;
+
+
+    @Value("${booking.status.success}")
+    String bookingStatusSuccess;
+
+    @Value("${booking.status.failure}")
+    String bookingStatusFailure;
+
+
+
     @PostMapping
     public String bookTicket(@RequestBody Ticket ticket)  {
 
@@ -64,7 +72,11 @@ public class TicketController {
             e.printStackTrace();
         }
 
+if(payload.getStatus().equals("Booked")){
+    return bookingStatusSuccess;
 
-        return bookingStatus;
+}
+
+return bookingStatusFailure;
     }
 }
